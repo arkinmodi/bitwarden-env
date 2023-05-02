@@ -18,7 +18,7 @@ class BW_Key(NamedTuple):
     name: str
 
 
-def _parse_env_file(filename: str = '.env') -> dict[str, str]:
+def _parse_env_file(filename: str = '.env') -> dict[str, str | None]:
     # format: 'bwenv://<UUID>/fields/<name value>'
     return dotenv_values(filename)
 
@@ -43,7 +43,7 @@ def _run(session: str, cmd: list[str], filename: str = '.env') -> NoReturn:
     bw_key_to_env_fields: dict[BW_Key, set[str]] = collections.defaultdict(set)
 
     for k, v in env_file.items():
-        if v.startswith(BWENV_PREFIX):
+        if v and v.startswith(BWENV_PREFIX):
             bw_id, bw_name = v[len(BWENV_PREFIX):].split('/fields/')
             bw_names_by_bw_id[bw_id].add(bw_name)
             bw_key_to_env_fields[BW_Key(bw_id, bw_name)].add(k)
@@ -62,7 +62,7 @@ def _run(session: str, cmd: list[str], filename: str = '.env') -> NoReturn:
         }
 
         for k, v in bw_item_fields_parsed.items():
-            if k in fields:
+            if k in fields and v:
                 bw_item_secrets[BW_Key(id, k)] = v
 
     new_env = os.environ.copy()
