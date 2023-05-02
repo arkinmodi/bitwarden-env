@@ -6,6 +6,7 @@ import json
 import os
 import subprocess
 
+from dotenv import dotenv_values
 from typing import NamedTuple
 from typing import NoReturn
 
@@ -18,9 +19,8 @@ class BW_Key(NamedTuple):
 
 
 def _parse_env_file(filename: str = '.env') -> dict[str, str]:
-    # TODO: Parse ENV files
     # format: 'bwenv://<UUID>/fields/<name value>'
-    ...
+    return dotenv_values(filename)
 
 
 def _is_bw_unlocked(session: str) -> bool:
