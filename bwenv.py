@@ -6,12 +6,18 @@ import json
 import os
 import subprocess
 
+from typing import NamedTuple
 from typing import NoReturn
 
 BWENV_PREFIX = 'bwenv://'
 
 
-def _parse_env_file(filename: str) -> dict[str, str]:
+class BW_Key(NamedTuple):
+    id: str
+    name: str
+
+
+def _parse_env_file(filename: str = '.env') -> dict[str, str]:
     # TODO: Parse ENV files
     # format: 'bwenv://<UUID>/fields/<name value>'
     ...
@@ -29,23 +35,22 @@ def _is_bw_unlocked(session: str) -> bool:
 def _run(session: str, cmd: list[str], filename: str = '.env') -> NoReturn:
     env_file = _parse_env_file(filename)
 
-    # BW ID -> list of BW Fields
-    bw_fields_by_bw_id: dict[str, set[str]] = collections.defaultdict(set)
+    # BW ID -> list of BW Names
+    bw_names_by_bw_id: dict[str, set[str]] = collections.defaultdict(set)
 
-    # (BW ID, BW Field) -> list of ENV Fields
+    # (BW ID, BW Name) -> list of ENV Fields
     # it is possible that multiple ENV Fields have the same value
-    bw_field_to_env_fields: dict[tuple[str, str],
-                                 set[str]] = collections.defaultdict(set)
+    bw_key_to_env_fields: dict[BW_Key, set[str]] = collections.defaultdict(set)
 
     for k, v in env_file.items():
         if v.startswith(BWENV_PREFIX):
-            bw_id, bw_field = v[len(BWENV_PREFIX):].split('/fields/')
-            bw_fields_by_bw_id[bw_id].add(bw_field)
-            bw_field_to_env_fields[(bw_id, bw_field)].add(k)
+            bw_id, bw_name = v[len(BWENV_PREFIX):].split('/fields/')
+            bw_names_by_bw_id[bw_id].add(bw_name)
+            bw_key_to_env_fields[BW_Key(bw_id, bw_name)].add(k)
 
-    # (BW ID, BW Field) -> ENV Value
-    bw_item_secrets: dict[tuple[str, str], str] = {}
-    for id, fields in bw_fields_by_bw_id.items():
+    # (BW ID, BW Name) -> ENV Value
+    bw_item_secrets: dict[BW_Key, str] = {}
+    for id, fields in bw_names_by_bw_id.items():
         bw_res = subprocess.run(
             ['bw', 'get', 'item', f'{id}', '--session', f'{session}'],
             capture_output=True,
@@ -58,10 +63,10 @@ def _run(session: str, cmd: list[str], filename: str = '.env') -> NoReturn:
 
         for k, v in bw_item_fields_parsed.items():
             if k in fields:
-                bw_item_secrets[(id, k)] = v
+                bw_item_secrets[BW_Key(id, k)] = v
 
     new_env = os.environ.copy()
-    for bw_key, env_fields in bw_field_to_env_fields.items():
+    for bw_key, env_fields in bw_key_to_env_fields.items():
         for field in env_fields:
             new_env[field] = bw_item_secrets[bw_key]
 
