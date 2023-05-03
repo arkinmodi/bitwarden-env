@@ -103,11 +103,41 @@ def _generate(
             f.write(f'{secret["name"]}="{bwenv_str}"\n')
 
 
-def main() -> NoReturn:
+def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument('command', nargs='*')
     parser.add_argument('--session', help='Bitwarden Session Token')
-    parser.add_argument('-f', '--env-file', default='.env')
+    subparser = parser.add_subparsers(dest='subparser_name')
+
+    run_parser = subparser.add_parser('run')
+    run_parser.add_argument(
+        '-f',
+        '--env-file',
+        default='.env',
+        help='Name of env file. Default: ".env"',
+    )
+    run_parser.add_argument(
+        'command',
+        nargs='+',
+        help=('The CLI command to run with the environment variables injected '
+              'into.'),
+    )
+
+    generate_parser = subparser.add_parser('generate')
+    generate_parser.add_argument(
+        '-f',
+        '--env-file',
+        default='.env',
+        help='Name of env file. Default: ".env"'
+    )
+    generate_parser.add_argument(
+        'name',
+        nargs='+',
+        help=('Bitwarden CLI search string. This can either be the Bitwarden '
+              'ID or a fuzzy search for the Bitwarden Item Name. Run '
+              "`bw get item <search string>` to view Bitwarden CLI's "
+              'response.'),
+    )
+
     args = parser.parse_args()
 
     if not args.session and 'BW_SESSION' not in os.environ:
@@ -121,11 +151,17 @@ def main() -> NoReturn:
         session = os.environ['BW_SESSION']
 
     if not _is_bw_unlocked(session):
-        msg = ('Invalid Bitwarden Session Token. Run `bw unlock` to generate'
+        msg = ('Invalid Bitwarden Session Token. Run `bw unlock` to generate '
                'a new session token.')
         raise RuntimeError(msg)
 
-    _run(session, args.command, args.env_file)
+    subparser_name = args.subparser_name
+    if subparser_name == 'run':
+        _run(session, args.command, args.env_file)
+    elif subparser_name == 'generate':
+        _generate(session, args.name, args.env_file)
+
+    return 0
 
 
 if __name__ == '__main__':
