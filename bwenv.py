@@ -5,10 +5,18 @@ import collections
 import json
 import os
 import subprocess
+import sys
 
 from dotenv import dotenv_values
 from typing import NamedTuple
 from typing import NoReturn
+
+
+if sys.platform == 'win32':
+    def execvpe(_file: str, args: list[str], env: dict[str, str]) -> int:
+        return subprocess.run(args, env=env)
+else:
+    from os import execvpe
 
 BWENV_PREFIX = 'bwenv://'
 
@@ -70,7 +78,7 @@ def _run(session: str, cmd: list[str], filename: str = '.env') -> NoReturn:
         for field in env_fields:
             new_env[field] = bw_item_secrets[bw_key]
 
-    os.execvpe(cmd[0], cmd, env=new_env)
+    execvpe(cmd[0], cmd, env=new_env)
 
 
 def _generate(
