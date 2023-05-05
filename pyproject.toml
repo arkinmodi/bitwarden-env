@@ -12,16 +12,24 @@ description = "Securely use and share environment variables in your local develo
 readme = "README.md"
 license = { file = "LICENSE" }
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Software Development",
+    "Topic :: Utilities",
 ]
 requires-python = ">=3.7"
 dependencies = [
     "python-dotenv>=0.8.0"
 ]
 
+[project.scripts]
+bwenv = "bw_env:main"
+
 [project.urls]
 "Homepage" = "https://github.com/arkinmodi/bitwarden-env"
 
-[project.scripts]
-bwenv = "bw_env:main"
+[tool.setuptools.packages.find]
+exclude = ["bw_env_test.py"]

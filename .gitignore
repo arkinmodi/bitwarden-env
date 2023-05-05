@@ -1,6 +1,6 @@
 *.egg-info
 *.pyc
 .DS_Store
-.mypy_cache
 build
+dist
 venv

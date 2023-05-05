@@ -47,6 +47,18 @@ def _run(session: str, cmd: list[str], filename: str = '.env') -> NoReturn:
 
     for k, v in env_file.items():
         if v and v.startswith(BWENV_PREFIX):
+            secret_reference_split = v[len(BWENV_PREFIX):].split('/fields/')
+
+            if (
+                len(secret_reference_split) != 2 or
+                not secret_reference_split[0] or
+                secret_reference_split[0].isspace() or
+                not secret_reference_split[1] or
+                secret_reference_split[1].isspace()
+            ):
+                print(f'"{k}" has a malformed secret reference.')
+                continue
+
             bw_id, bw_name = v[len(BWENV_PREFIX):].split('/fields/')
             bw_names_by_bw_id[bw_id].add(bw_name)
             bw_key_to_env_fields[BW_Key(bw_id, bw_name)].add(k)
@@ -76,9 +88,12 @@ def _run(session: str, cmd: list[str], filename: str = '.env') -> NoReturn:
     new_env = os.environ.copy()
     for bw_key, env_fields in bw_key_to_env_fields.items():
         for field in env_fields:
-            new_env[field] = bw_item_secrets[bw_key]
+            if bw_key in bw_item_secrets:
+                new_env[field] = bw_item_secrets[bw_key]
+            else:
+                print(f'"{bw_key.name}" not found in item with ID "{bw_key.id}"')
 
-    execvpe(cmd[0], cmd, env=new_env)
+    execvpe(cmd[0], cmd, new_env)
 
 
 def _generate(
@@ -109,6 +124,8 @@ def _generate(
             # format: bwenv://<uuid>/fields/<name>
             bwenv_str = f'{BWENV_PREFIX}{bw_id}/fields/{secret["name"]}'
             f.write(f'{secret["name"]}="{bwenv_str}"\n')
+
+    print(f'Added environment variables to {filename}')
 
 
 def main() -> int:
