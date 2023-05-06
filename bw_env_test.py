@@ -251,3 +251,24 @@ def test_bw_generate_bw_item_not_found(mock_run):
 
     with pytest.raises(RuntimeError):
         _generate('', test_cmd, '')
+
+
+@patch('bw_env.subprocess.run')
+def test_bw_generate_multiple_bw_items_found(mock_run):
+    mock_stdout = MagicMock()
+    mock_stdout.configure_mock(
+        **{
+            'stdout': None,
+            'stderr': b'''
+More than one result was found. Try getting a specific object by `id` instead. The following objects were found:
+27a7e219-098f-4342-9475-85c98610a985
+7cbb5074-a3c9-4f3f-b3c5-286ae1176e35
+''',  # noqa: E501
+        }
+    )
+    mock_run.return_value = mock_stdout
+
+    test_cmd = ['test', 'command']
+
+    with pytest.raises(RuntimeError):
+        _generate('', test_cmd, '')
