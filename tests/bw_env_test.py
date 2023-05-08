@@ -1,11 +1,11 @@
 import os
-import pytest
 import random
 import string
 import sys
-
 from unittest.mock import MagicMock
 from unittest.mock import patch
+
+import pytest
 
 from bw_env import _generate
 from bw_env import _is_bw_unlocked
@@ -17,8 +17,8 @@ def test_bw_is_locked(mock_run):
     mock_stdout = MagicMock()
     mock_stdout.configure_mock(
         **{
-            'stdout': b'{"status":"locked"}'
-        }
+            'stdout': b'{"status":"locked"}',
+        },
     )
 
     mock_run.return_value = mock_stdout
@@ -30,8 +30,8 @@ def test_bw_is_unlocked(mock_run):
     mock_stdout = MagicMock()
     mock_stdout.configure_mock(
         **{
-            'stdout': b'{"status":"unlocked"}'
-        }
+            'stdout': b'{"status":"unlocked"}',
+        },
     )
 
     mock_run.return_value = mock_stdout
@@ -40,7 +40,7 @@ def test_bw_is_unlocked(mock_run):
 
 @pytest.mark.skipif(
     sys.platform == 'win32',
-    reason='Windows does not implement execvpe correctly'
+    reason='Windows does not implement execvpe correctly',
 )
 @patch('bw_env.dotenv_values')
 @patch('bw_env.execvpe')
@@ -65,7 +65,7 @@ def test_bw_run(mock_run, mock_execvpe, mock_dotenv_values):
 }
                 ''',
             'stderr': None,
-        }
+        },
     )
     mock_run.return_value = mock_stdout
 
@@ -109,7 +109,7 @@ def test_bw_run_bw_item_not_found(mock_run, mock_execvpe, mock_dotenv_values):
         **{
             'stdout': None,
             'stderr': b'Not found.',
-        }
+        },
     )
     mock_run.return_value = mock_stdout
 
@@ -125,7 +125,7 @@ def test_bw_run_bw_item_not_found(mock_run, mock_execvpe, mock_dotenv_values):
 def test_bw_run_bw_name_not_found_in_bw_item(
         mock_run,
         mock_execvpe,
-        mock_dotenv_values
+        mock_dotenv_values,
 ):
     mock_dotenv_values.return_value = {
         'TEST_A': 'bwenv://test_bw_id/fields/TEST_BW_A',
@@ -136,7 +136,7 @@ def test_bw_run_bw_name_not_found_in_bw_item(
         **{
             'stdout': b'{ "fields": [] }',
             'stderr': None,
-        }
+        },
     )
     mock_run.return_value = mock_stdout
 
@@ -155,7 +155,7 @@ def test_bw_run_bw_name_not_found_in_bw_item(
 def test_bw_run_malformed_secret_reference_string(
         mock_run,
         mock_execvpe,
-        mock_dotenv_values
+        mock_dotenv_values,
 ):
     mock_dotenv_values.return_value = {
         'TEST_A': 'bwenv:///fields/TEST_BW_A',
@@ -167,7 +167,7 @@ def test_bw_run_malformed_secret_reference_string(
         **{
             'stdout': b'{ "fields": [] }',
             'stderr': None,
-        }
+        },
     )
     mock_run.return_value = mock_stdout
 
@@ -199,7 +199,7 @@ def test_bw_generate(mock_run):
 }
                 ''',
             'stderr': None,
-        }
+        },
     )
     mock_run.return_value = mock_stdout
 
@@ -212,7 +212,7 @@ def test_bw_generate(mock_run):
 
     expected_env = 'TEST_A="bwenv://BW_ID/fields/TEST_A"\n'
 
-    with open(filename, 'r') as f:
+    with open(filename) as f:
         actual_env = f.read()
 
     assert expected_env == actual_env
@@ -226,7 +226,7 @@ def test_bw_generate_missing_fields(mock_run):
         **{
             'stdout': b'{ "id": "BW_ID" }',
             'stderr': None,
-        }
+        },
     )
     mock_run.return_value = mock_stdout
 
@@ -243,7 +243,7 @@ def test_bw_generate_bw_item_not_found(mock_run):
         **{
             'stdout': None,
             'stderr': b'Not found.',
-        }
+        },
     )
     mock_run.return_value = mock_stdout
 
@@ -264,7 +264,7 @@ More than one result was found. Try getting a specific object by `id` instead. T
 27a7e219-098f-4342-9475-85c98610a985
 7cbb5074-a3c9-4f3f-b3c5-286ae1176e35
 ''',  # noqa: E501
-        }
+        },
     )
     mock_run.return_value = mock_stdout
 

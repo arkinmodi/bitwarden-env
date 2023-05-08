@@ -1,0 +1,36 @@
+
+name: Test Application
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - test-me-*
+  workflow_dispatch:
+
+jobs:
+  tox:
+    name: 🧪 Tox / ${{ matrix.env }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        env: ['py37', 'py38', 'py39', 'py310', 'py311']
+    steps:
+      - name: 🛎 Checkout
+        uses: actions/checkout@v3
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: |
+            ${{
+              matrix.env == 'py37'  && '3.7'  ||
+              matrix.env == 'py38'  && '3.8'  ||
+              matrix.env == 'py39'  && '3.9'  ||
+              matrix.env == 'py310' && '3.10' ||
+              '3.11'
+            }}
+
+      - run: python -m pip install --upgrade setuptools tox virtualenv
+      - run: tox -e ${{ matrix.env }}

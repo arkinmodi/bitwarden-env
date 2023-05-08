@@ -6,10 +6,10 @@ import json
 import os
 import subprocess
 import sys
-
-from dotenv import dotenv_values
 from typing import NamedTuple
 from typing import NoReturn
+
+from dotenv import dotenv_values
 
 
 if sys.platform == 'win32':
@@ -29,7 +29,7 @@ class BW_Key(NamedTuple):
 def _is_bw_unlocked(session: str) -> bool:
     bw_res = subprocess.run(
         ['bw', 'status', '--session', f'{session}'],
-        capture_output=True
+        capture_output=True,
     )
     bw_status = json.loads(bw_res.stdout)
     return bw_status['status'] == 'unlocked'
@@ -73,7 +73,8 @@ def _run(session: str, cmd: list[str], filename: str = '.env') -> NoReturn:
 
         if bw_res.stderr:
             raise RuntimeError(
-                f'Bitwarden CLI Error -- {bw_res.stderr.decode()}')
+                f'Bitwarden CLI Error -- {bw_res.stderr.decode()}',
+            )
 
         bw_item = json.loads(bw_res.stdout)
         bw_item_fields_parsed = {
@@ -91,7 +92,9 @@ def _run(session: str, cmd: list[str], filename: str = '.env') -> NoReturn:
             if bw_key in bw_item_secrets:
                 new_env[field] = bw_item_secrets[bw_key]
             else:
-                print(f'"{bw_key.name}" not found in item with ID "{bw_key.id}"')
+                print(
+                    f'"{bw_key.name}" not found in item with ID "{bw_key.id}"',
+                )
 
     execvpe(cmd[0], cmd, new_env)
 
@@ -99,7 +102,7 @@ def _run(session: str, cmd: list[str], filename: str = '.env') -> NoReturn:
 def _generate(
         session: str,
         bw_name: list[str],
-        filename: str = '.env'
+        filename: str = '.env',
 ) -> None:
     bw_res = subprocess.run(
         ['bw', 'get', 'item', '--session', f'{session}', *bw_name],
@@ -113,10 +116,12 @@ def _generate(
     bw_id = bw_item['id']
 
     if 'fields' not in bw_item:
-        msg = ('"fields" property missing from Bitwarden CLI response. '
-               f'Matched item with ID "{bw_id}" does not have any environment '
-               f'variables configured. Run `bw get item {bw_id}` to view the '
-               'Bitwarden CLI response.')
+        msg = (
+            '"fields" property missing from Bitwarden CLI response. '
+            f'Matched item with ID "{bw_id}" does not have any environment '
+            f'variables configured. Run `bw get item {bw_id}` to view the '
+            'Bitwarden CLI response.'
+        )
         raise RuntimeError(msg)
 
     with open(filename, 'a') as f:
@@ -129,7 +134,10 @@ def _generate(
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        description='Securely use and share environment variables in your '
+        'local development using Bitwarden!',
+    )
     parser.add_argument('--session', help='Bitwarden Session Token')
     subparser = parser.add_subparsers(dest='subparser_name')
 
@@ -143,8 +151,10 @@ def main() -> int:
     run_parser.add_argument(
         'command',
         nargs='+',
-        help=('The CLI command to run with the environment variables injected '
-              'into.'),
+        help=(
+            'The CLI command to run with the environment variables injected '
+            'into.'
+        ),
     )
 
     generate_parser = subparser.add_parser('generate')
@@ -152,23 +162,27 @@ def main() -> int:
         '-f',
         '--env-file',
         default='.env',
-        help='Name of env file. Default: ".env"'
+        help='Name of env file. Default: ".env"',
     )
     generate_parser.add_argument(
         'name',
         nargs='+',
-        help=('Bitwarden CLI search string. This can either be the Bitwarden '
-              'ID or a fuzzy search for the Bitwarden Item Name. Run '
-              "`bw get item <search string>` to view Bitwarden CLI's "
-              'response.'),
+        help=(
+            'Bitwarden CLI search string. This can either be the Bitwarden '
+            'ID or a fuzzy search for the Bitwarden Item Name. Run '
+            "`bw get item <search string>` to view Bitwarden CLI's "
+            'response.'
+        ),
     )
 
     args = parser.parse_args()
 
     if not args.session and 'BW_SESSION' not in os.environ:
-        msg = ('No Bitwarden Session Token was provided. Run `bw unlock` '
-               'and provide the generated session token via either the '
-               '--session flag or the BW_SESSION environment variable.')
+        msg = (
+            'No Bitwarden Session Token was provided. Run `bw unlock` '
+            'and provide the generated session token via either the '
+            '--session flag or the BW_SESSION environment variable.'
+        )
         raise RuntimeError(msg)
     elif args.session:
         session = args.session
@@ -176,8 +190,10 @@ def main() -> int:
         session = os.environ['BW_SESSION']
 
     if not _is_bw_unlocked(session):
-        msg = ('Invalid Bitwarden Session Token. Run `bw unlock` to generate '
-               'a new session token.')
+        msg = (
+            'Invalid Bitwarden Session Token. Run `bw unlock` to generate '
+            'a new session token.'
+        )
         raise RuntimeError(msg)
 
     subparser_name = args.subparser_name
