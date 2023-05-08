@@ -30,6 +30,3 @@ bwenv = "bw_env:main"
 
 [project.urls]
 "Homepage" = "https://github.com/arkinmodi/bitwarden-env"
-
-[tool.setuptools.packages.find]
-exclude = ["bw_env_test.py"]
