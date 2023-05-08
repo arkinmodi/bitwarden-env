@@ -1,4 +1,3 @@
-
 name: Test Application
 on:
   pull_request:
@@ -10,12 +9,12 @@ on:
 
 jobs:
   tox:
-    name: 🧪 Tox / ${{ matrix.env }}
+    name: 🧪 ${{ matrix.env }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        env: ['py37', 'py38', 'py39', 'py310', 'py311']
+        env: ['py38', 'py39', 'py310', 'py311']
     steps:
       - name: 🛎 Checkout
         uses: actions/checkout@v3
@@ -25,7 +24,6 @@ jobs:
         with:
           python-version: |
             ${{
-              matrix.env == 'py37'  && '3.7'  ||
               matrix.env == 'py38'  && '3.8'  ||
               matrix.env == 'py39'  && '3.9'  ||
               matrix.env == 'py310' && '3.10' ||

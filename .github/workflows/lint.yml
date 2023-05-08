@@ -28,12 +28,12 @@ jobs:
           autopep8 \
           flake8 \
           mypy \
-          pyupgrade
+          pyupgrade \
           reorder-python-imports \
 
       - run: python -m autopep8 --exit-code --aggressive --aggressive --in-place $(git ls-files -- '*.py')
       - run: python -m flake8 $(git ls-files -- '*.py')
       - run: python -m mypy --ignore-missing-imports --scripts-are-modules $(git ls-files -- '*.py')
-      - run: python -m pyupgrade --py37-plus $(git ls-files -- '*.py')
-      - run: add-trailing-comma --py36-plus $(git ls-files -- '*.py'
+      - run: python -m pyupgrade --py38-plus $(git ls-files -- '*.py')
+      - run: add-trailing-comma --py36-plus $(git ls-files -- '*.py')
       - run: reorder-python-imports --py37-plus $(git ls-files -- '*.py')
