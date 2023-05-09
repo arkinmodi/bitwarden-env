@@ -36,6 +36,9 @@ Within Bitwarden, you need to create the item to hold your environment variables
 
 ```sh
 bwenv generate [-h] [-f ENV_FILE] name [name ...]
+
+# example
+bwenv generate demo
 ```
 
 This command is for generating a `.env` file (filename is customizable with the `-f` flag). This will perform either a fuzzy search for the Bitwarden Item Name or ID. The founded environment variables will be appended to file (i.e., this will not overwrite existing data within the file).
@@ -44,6 +47,9 @@ This command is for generating a `.env` file (filename is customizable with the 
 
 ```sh
 bwenv run [-h] [-f ENV_FILE] command [command ...]
+
+# example
+bwenv run -- npm run dev
 ```
 
 This command is for running a command with the environment variables pulled from Bitwarden. `.env` is the default filename and can be customized with the `-f` flag. This will not create environment variables for key-values defined without the `bwenv://` prefix.
