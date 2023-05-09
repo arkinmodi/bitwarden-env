@@ -26,7 +26,10 @@ dependencies = [
 ]
 
 [project.scripts]
-bwenv = "bw_env:main"
+bwenv = "bw_env._main:main"
 
 [project.urls]
 "Homepage" = "https://github.com/arkinmodi/bitwarden-env"
+
+[tool.setuptools.packages.find]
+exclude = ["assets*", "tests*"]
