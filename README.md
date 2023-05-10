@@ -32,6 +32,8 @@ Within Bitwarden, you need to create the item to hold your environment variables
 
 ![Custom Fields in the Bitwarden App](assets/readme_bitwarden_custom_fields.png)
 
+The name of the environment variable can be different from the name for the Custom Field. Additionally, you can have environment variables that point to multiple Bitwarden Items within the same file. (e.g., `ENV_1` points to Bitwarden Item 1 and `ENV_2` points to Bitwarden Item 2.)
+
 ### `bwenv generate`
 
 ```sh
@@ -42,6 +44,8 @@ bwenv generate demo
 ```
 
 This command is for generating a `.env` file (filename is customizable with the `-f` flag). This will perform either a fuzzy search for the Bitwarden Item Name or ID. The founded environment variables will be appended to file (i.e., this will not overwrite existing data within the file).
+
+The format for the secret reference string is `bwenv://<Bitwarden Item ID>/fields/<Custom Field Name>`.
 
 ### `bwenv run`
 
