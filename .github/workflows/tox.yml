@@ -17,7 +17,7 @@ jobs:
         env: ['py38', 'py39', 'py310', 'py311']
     steps:
       - name: 🛎 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🐍 Setup Python
         uses: actions/setup-python@v4
