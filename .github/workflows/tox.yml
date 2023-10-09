@@ -1,5 +1,9 @@
+# yamllint disable rule:line-length
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+# yamllint enable rule:line-length
+---
 name: Test Application
-on:
+"on":
   pull_request:
   push:
     branches:
@@ -9,25 +13,22 @@ on:
 
 jobs:
   tox:
-    name: 🧪 ${{ matrix.env }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        env: ['py38', 'py39', 'py310', 'py311']
+        env: ['py38', 'py39', 'py310', 'py311', 'py312']
     steps:
-      - name: 🛎 Checkout
-        uses: actions/checkout@v4
-
-      - name: 🐍 Setup Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
         with:
           python-version: |
             ${{
               matrix.env == 'py38'  && '3.8'  ||
               matrix.env == 'py39'  && '3.9'  ||
               matrix.env == 'py310' && '3.10' ||
-              '3.11'
+              matrix.env == 'py311' && '3.11' ||
+              '3.12'
             }}
 
       - run: python -m pip install --upgrade setuptools tox virtualenv
