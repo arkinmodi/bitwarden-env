@@ -20,7 +20,7 @@ jobs:
         env: ['py38', 'py39', 'py310', 'py311', 'py312']
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: |
             ${{
